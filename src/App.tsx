@@ -1,9 +1,46 @@
-import { SafeAreaView, StyleSheet, Pressable, Text, View, TextInput } from 'react-native'
-import React from 'react'
+import { SafeAreaView, StyleSheet, Pressable, Text, View, TextInput, FlatList, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import ShoppingItem from './components/ShoppingItem'
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import { app, db, getFirestore, collection, addDoc, getDocs } from '../firebase/index'
 
 const App = () => {
+    /* Need a state */
+    const [title, setTitle] = useState<String>("")
+    /* create a list */
+    const [shoppingList, setShoppingList] = useState([])
+    /* Need an export function to add new item */
+    const addShoppingItem = async() => {
+        try {
+            const docRef = await addDoc(collection(db, "shopping"), {
+              title: title,
+              isChecked: false
+            });
+            console.log("Document written with ID: ", docRef.id);
+            setTitle("")
+          } catch (e) {
+            console.error("Error adding document: ", e);
+          }
+    }
+
+    /* Need function to retrive the list */
+    const getShoppingList =async () => {
+      const querySnapshot = await getDocs(collection(db, "shopping"));
+      querySnapshot.forEach((doc) => {
+        console.log(doc.id, doc.data());
+        setShoppingList({
+          ...doc.data(),
+          id: doc.id,
+        })
+      });
+    }
+
+    /* Need an Effect to display the list */
+    useEffect(() => {
+      getShoppingList()
+    }, [])
+    
+
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.header}>
@@ -18,12 +55,29 @@ const App = () => {
                 <Icon name="delete" size={24} color="black"/>
             </Pressable>
         </View>
-        <ShoppingItem/>
-        <ShoppingItem/>
-        <ShoppingItem/>
+        {/* flatlist */}
+        {/* apply condition check for render item and activity Indicator */}
+
+        {
+          shoppingList.length > 0 ? (
+            <FlatList
+            data={shoppingList}
+            renderItem={({item})=><ShoppingItem title={item.title}/>}
+            keyExtractor={item=>item.id}
+            />
+          )
+          : (
+            <ActivityIndicator/>
+          )}
 
         {/* text input */}
-        <TextInput placeholder='Enter shopping item' style={styles.input}/>
+        <TextInput
+          placeholder='Enter shopping item' 
+          style={styles.input}
+          value={title}
+          onChangeText={(text) => setTitle(text)}
+          onSubmitEditing={addShoppingItem}
+          />
     </SafeAreaView>
   )
 }
