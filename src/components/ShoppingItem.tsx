@@ -2,16 +2,21 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
-const ShoppingItem = () => {
+//shopping object
+/* 1. id
+2. title
+3. isChecked */
+const ShoppingItem = (props) => {
   return (
     <View style={styles.container}>
+      
       {/* checked Icon */}
       <Pressable>
       <Icon name="check-circle" size={24} color="black"/>
       </Pressable>
  
       {/* shopping text */}
-      <Text style={styles.title}>Bread</Text>
+      <Text style={styles.title}>{props.title}</Text>
       
       {/* delete */}
       <Pressable>
