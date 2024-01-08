@@ -2,7 +2,7 @@ import { SafeAreaView, StyleSheet, Pressable, Text, View, TextInput, FlatList, A
 import React, { useEffect, useState } from 'react'
 import ShoppingItem from './components/ShoppingItem'
 import Icon from 'react-native-vector-icons/MaterialIcons'
-import { app, db, getFirestore, collection, addDoc, getDocs } from '../firebase/index'
+import { db, collection, addDoc, getDocs, deleteDoc, doc } from '../firebase/index'
 
 const App = () => {
     /* Need a state */
@@ -40,6 +40,13 @@ const App = () => {
       console.log("list size ", items.length);
     }
 
+    /* Need function to delete full list */
+    const deleteShoppingList =async () => {
+      const querySnapshot = await getDocs(collection(db, "shopping"))
+      querySnapshot.docs.map((item) => deleteDoc(doc(db, "shopping", item.id)))
+      getShoppingList()
+    }
+
     /* Need an Effect to display the list */
     useEffect(() => {
       getShoppingList()
@@ -56,7 +63,7 @@ const App = () => {
             <Text style={styles.noOfItems}>0</Text>
 
             {/* delete all */}
-            <Pressable>
+            <Pressable onPress={deleteShoppingList}>
                 <Icon name="delete" size={24} color="black"/>
             </Pressable>
         </View>
@@ -67,7 +74,13 @@ const App = () => {
           shoppingList.length > 0 ? (
             <FlatList
             data={shoppingList}
-            renderItem={({item})=><ShoppingItem title={item.title}/>}
+            renderItem={({item})=>(
+              <ShoppingItem 
+                title={item.title}
+                isChecked={item.isChecked}
+                id={item.id}
+                getShoppingList={getShoppingList}/>
+            )}
             keyExtractor={item=>item.id}
             />
           )
