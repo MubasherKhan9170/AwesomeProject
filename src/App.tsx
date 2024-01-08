@@ -8,7 +8,7 @@ const App = () => {
     /* Need a state */
     const [title, setTitle] = useState<String>("")
     /* create a list */
-    const [shoppingList, setShoppingList] = useState([])
+    const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([])
     /* Need an export function to add new item */
     const addShoppingItem = async() => {
         try {
@@ -21,18 +21,23 @@ const App = () => {
           } catch (e) {
             console.error("Error adding document: ", e);
           }
+          getShoppingList()
     }
 
     /* Need function to retrive the list */
     const getShoppingList =async () => {
       const querySnapshot = await getDocs(collection(db, "shopping"));
+      const items: ShoppingItem[] = [];
+
       querySnapshot.forEach((doc) => {
-        console.log(doc.id, doc.data());
-        setShoppingList({
+        items.push({
           ...doc.data(),
           id: doc.id,
-        })
+        });
       });
+  
+      setShoppingList(items);
+      console.log("list size ", items.length);
     }
 
     /* Need an Effect to display the list */
@@ -67,6 +72,7 @@ const App = () => {
             />
           )
           : (
+            
             <ActivityIndicator/>
           )}
 
