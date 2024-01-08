@@ -60,7 +60,7 @@ const App = () => {
             <Text style={styles.heading}>Shopping List</Text>
 
             {/* no. of shopping items */}
-            <Text style={styles.noOfItems}>0</Text>
+            <Text style={styles.noOfItems}>{shoppingList.length}</Text>
 
             {/* delete all */}
             <Pressable onPress={deleteShoppingList}>
